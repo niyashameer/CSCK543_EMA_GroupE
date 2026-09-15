@@ -12,6 +12,13 @@
 -- - recipe steps
 --
 -- This script assumes schema.sql has already been executed.
+--
+-- NOTE: fixed for MariaDB (XAMPP's default) compatibility.
+-- MariaDB does not support naming a derived table's columns via
+-- "... ) AS data (col1, col2, col3)" the way MySQL 8 does.
+-- Instead, column names are given as aliases on the FIRST branch
+-- of each UNION ALL, and the derived table is aliased with
+-- "AS data" only (no column list).
 -- =========================================================
 
 USE recipe_app;
@@ -19,9 +26,6 @@ USE recipe_app;
 
 -- =========================================================
 -- 1. CATEGORIES
---
--- Categories are grouped by type so that search filters
--- can distinguish between course, dietary and cuisine.
 -- =========================================================
 
 INSERT INTO categories (category_name, category_type) VALUES
@@ -51,9 +55,6 @@ INSERT INTO categories (category_name, category_type) VALUES
 
 -- =========================================================
 -- 2. ALLERGENS
---
--- Stored independently because the same allergen can occur
--- in many ingredients.
 -- =========================================================
 
 INSERT INTO allergens (allergen_name) VALUES
@@ -66,12 +67,6 @@ INSERT INTO allergens (allergen_name) VALUES
 
 -- =========================================================
 -- 3. RECIPES
---
--- Time ranges are represented using an upper-bound value
--- to allow consistent numeric searching and sorting.
---
--- image_path is currently NULL so that local/licensed
--- images can be added later without relying on hotlinks.
 -- =========================================================
 
 INSERT INTO recipes (
@@ -144,13 +139,7 @@ VALUES
 
 -- =========================================================
 -- 4. RECIPE CATEGORIES
---
--- Links each recipe to one or more classifications.
---
--- Subqueries are used instead of hard-coded IDs so that the
--- script does not depend on specific AUTO_INCREMENT values.
 -- =========================================================
-
 
 -- ---------------------------------------------------------
 -- Spaghetti Bolognese
@@ -251,9 +240,6 @@ AND c.category_name IN (
 
 -- =========================================================
 -- 5. INGREDIENTS
---
--- Ingredients are inserted only once, even when they are
--- shared by multiple recipes.
 -- =========================================================
 
 INSERT INTO ingredients (ingredient_name) VALUES
@@ -335,13 +321,8 @@ INSERT INTO ingredients (ingredient_name) VALUES
 
 -- =========================================================
 -- 6. INGREDIENT ALLERGENS
---
--- Allergen information is attached to the ingredient rather
--- than duplicated against every recipe.
 -- =========================================================
 
-
--- Gluten-containing ingredients
 INSERT INTO ingredient_allergens (ingredient_id, allergen_id)
 SELECT i.ingredient_id, a.allergen_id
 FROM ingredients i
@@ -355,7 +336,6 @@ WHERE i.ingredient_name IN (
 AND a.allergen_name = 'Gluten';
 
 
--- Milk-containing ingredients
 INSERT INTO ingredient_allergens (ingredient_id, allergen_id)
 SELECT i.ingredient_id, a.allergen_id
 FROM ingredients i
@@ -370,7 +350,6 @@ WHERE i.ingredient_name IN (
 AND a.allergen_name = 'Milk';
 
 
--- Soya milk is linked to the soy allergen
 INSERT INTO ingredient_allergens (ingredient_id, allergen_id)
 SELECT i.ingredient_id, a.allergen_id
 FROM ingredients i
@@ -379,7 +358,6 @@ WHERE i.ingredient_name = 'Soya milk'
 AND a.allergen_name = 'Soy';
 
 
--- Celery salt is linked to the celery allergen.
 INSERT INTO ingredient_allergens (ingredient_id, allergen_id)
 SELECT i.ingredient_id, a.allergen_id
 FROM ingredients i
@@ -390,8 +368,6 @@ AND a.allergen_name = 'Celery';
 
 -- =========================================================
 -- 7. SPAGHETTI BOLOGNESE INGREDIENTS
---
--- display_order controls the order shown on recipe.php.
 -- =========================================================
 
 INSERT INTO recipe_ingredients (
@@ -417,7 +393,7 @@ FROM recipes r
 
 JOIN (
     SELECT 'Olive oil' ingredient_name,
-           '2', 'tbsp', 'or sun-dried tomato oil', 1
+           '2' quantity, 'tbsp' unit, 'or sun-dried tomato oil' notes, 1 display_order
 
     UNION ALL
     SELECT 'Smoked streaky bacon',
@@ -487,13 +463,7 @@ JOIN (
     SELECT 'Parmesan',
            NULL, NULL, 'freshly grated, to serve', 18
 
-) AS data (
-    ingredient_name,
-    quantity,
-    unit,
-    notes,
-    display_order
-)
+) AS data
 
 JOIN ingredients i
     ON i.ingredient_name = data.ingredient_name
@@ -528,8 +498,8 @@ SELECT
 FROM recipes r
 
 JOIN (
-    SELECT 'Self-raising flour',
-           '125', 'g', NULL, 1
+    SELECT 'Self-raising flour' ingredient_name,
+           '125' quantity, 'g' unit, NULL notes, 1 display_order
 
     UNION ALL
     SELECT 'Caster sugar',
@@ -555,13 +525,7 @@ JOIN (
     SELECT 'Sunflower oil',
            '4', 'tsp', 'for frying', 7
 
-) AS data (
-    ingredient_name,
-    quantity,
-    unit,
-    notes,
-    display_order
-)
+) AS data
 
 JOIN ingredients i
     ON i.ingredient_name = data.ingredient_name
@@ -571,9 +535,6 @@ WHERE r.title = 'Vegan pancakes';
 
 -- =========================================================
 -- 9. HEALTHY PIZZA INGREDIENTS
---
--- section_name preserves the original grouping of the
--- ingredients.
 -- =========================================================
 
 INSERT INTO recipe_ingredients (
@@ -599,10 +560,10 @@ FROM recipes r
 
 JOIN (
 
-    SELECT 'Self-raising wholemeal flour',
-           '125', 'g',
-           'plus extra for dusting',
-           'For the base', 1
+    SELECT 'Self-raising wholemeal flour' ingredient_name,
+           '125' quantity, 'g' unit,
+           'plus extra for dusting' notes,
+           'For the base' section_name, 1 display_order
 
     UNION ALL
     SELECT 'Sea salt',
@@ -676,14 +637,7 @@ JOIN (
            NULL,
            'For the tomato sauce', 13
 
-) AS data (
-    ingredient_name,
-    quantity,
-    unit,
-    notes,
-    section_name,
-    display_order
-)
+) AS data
 
 JOIN ingredients i
     ON i.ingredient_name = data.ingredient_name
@@ -718,8 +672,8 @@ FROM recipes r
 
 JOIN (
 
-    SELECT 'Vegetable oil',
-           '5', 'tbsp', NULL, 1
+    SELECT 'Vegetable oil' ingredient_name,
+           '5' quantity, 'tbsp' unit, NULL notes, 1 display_order
 
     UNION ALL
     SELECT 'Onion',
@@ -794,13 +748,7 @@ JOIN (
     SELECT 'Pomegranate seeds',
            '2', 'tbsp', 'optional garnish', 19
 
-) AS data (
-    ingredient_name,
-    quantity,
-    unit,
-    notes,
-    display_order
-)
+) AS data
 
 JOIN ingredients i
     ON i.ingredient_name = data.ingredient_name
@@ -835,10 +783,10 @@ FROM recipes r
 
 JOIN (
 
-    SELECT 'Chopped tomatoes',
-           '400', 'g tin',
-           NULL,
-           'For the chilli sauce', 1
+    SELECT 'Chopped tomatoes' ingredient_name,
+           '400' quantity, 'g tin' unit,
+           NULL notes,
+           'For the chilli sauce' section_name, 1 display_order
 
     UNION ALL
     SELECT 'Rose harissa',
@@ -960,14 +908,7 @@ JOIN (
            'optional',
            'For the garnish', 21
 
-) AS data (
-    ingredient_name,
-    quantity,
-    unit,
-    notes,
-    section_name,
-    display_order
-)
+) AS data
 
 JOIN ingredients i
     ON i.ingredient_name = data.ingredient_name
@@ -977,23 +918,13 @@ WHERE r.title = 'Mushroom doner';
 
 -- =========================================================
 -- 12. RECIPE STEPS
---
--- Some durations are directly based on the stated cooking
--- time while others are reasonable application estimates.
 -- =========================================================
-
 
 -- ---------------------------------------------------------
 -- Spaghetti Bolognese
 -- ---------------------------------------------------------
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 1,
 'Cook the bacon, onions and garlic, then brown the minced beef. Add the wine and reduce before adding the tomatoes, mushrooms, herbs and balsamic vinegar.',
 20
@@ -1001,13 +932,7 @@ FROM recipes
 WHERE title =
 'Spaghetti bolognese with mushrooms and sun-dried tomatoes';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 2,
 'Prepare the sun-dried tomatoes, add them to the sauce, season and simmer gently until the sauce becomes rich and thick. Finish with basil.',
 90
@@ -1015,13 +940,7 @@ FROM recipes
 WHERE title =
 'Spaghetti bolognese with mushrooms and sun-dried tomatoes';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 3,
 'Allow the sauce to settle while cooking the spaghetti. Drain the pasta and serve with the sauce, parmesan and black pepper.',
 15
@@ -1034,65 +953,35 @@ WHERE title =
 -- Vegan Pancakes
 -- ---------------------------------------------------------
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 1,
 'Mix the flour, sugar, baking powder and salt. Add the plant-based milk and vanilla and whisk until smooth.',
 5
 FROM recipes
 WHERE title = 'Vegan pancakes';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 2,
 'Heat a non-stick frying pan, add oil and coat the surface.',
 3
 FROM recipes
 WHERE title = 'Vegan pancakes';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 3,
 'Add portions of batter to the pan and spread each pancake to approximately 10cm in diameter.',
 3
 FROM recipes
 WHERE title = 'Vegan pancakes';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 4,
 'Cook until bubbles appear, flip and cook the other side until lightly golden.',
 2
 FROM recipes
 WHERE title = 'Vegan pancakes';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 5,
 'Keep cooked pancakes warm while repeating with the remaining batter, then serve with preferred toppings.',
 10
@@ -1104,91 +993,49 @@ WHERE title = 'Vegan pancakes';
 -- Healthy Pizza
 -- ---------------------------------------------------------
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 1,
 'Preheat the oven.',
 5
 FROM recipes
 WHERE title = 'Healthy pizza';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 2,
 'Combine the pepper, courgette, red onion and oil, season and roast the vegetables.',
 15
 FROM recipes
 WHERE title = 'Healthy pizza';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 3,
 'Combine the flour, salt, yoghurt and water to form the pizza dough, then knead briefly.',
 5
 FROM recipes
 WHERE title = 'Healthy pizza';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 4,
 'Roll the dough into a thin oval shape suitable for the baking tray.',
 3
 FROM recipes
 WHERE title = 'Healthy pizza';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 5,
 'Remove the roasted vegetables and bake the pizza base before turning it over.',
 5
 FROM recipes
 WHERE title = 'Healthy pizza';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 6,
 'Mix the passata and oregano, spread onto the base, add vegetables, chilli and cheese, then bake until cooked.',
 10
 FROM recipes
 WHERE title = 'Healthy pizza';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 7,
 'Season with black pepper, drizzle with olive oil and add basil if desired.',
 2
@@ -1200,104 +1047,56 @@ WHERE title = 'Healthy pizza';
 -- Easy Lamb Biryani
 -- ---------------------------------------------------------
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 1,
 'Fry the sliced onions until lightly browned and crisp.',
 18
 FROM recipes
 WHERE title = 'Easy lamb biryani';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 2,
 'Combine half of the onions with yoghurt, ginger, garlic, spices, lime, herbs and chillies.',
 5
 FROM recipes
 WHERE title = 'Easy lamb biryani';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 3,
 'Coat the lamb in the marinade, cover and refrigerate.',
 480
 FROM recipes
 WHERE title = 'Easy lamb biryani';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 4,
 'Preheat the oven.',
 5
 FROM recipes
 WHERE title = 'Easy lamb biryani';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 5,
 'Warm the cream and milk with the saffron and leave to infuse.',
 30
 FROM recipes
 WHERE title = 'Easy lamb biryani';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 6,
 'Cook the basmati rice until just cooked but still firm, then drain.',
 8
 FROM recipes
 WHERE title = 'Easy lamb biryani';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 7,
 'Layer the lamb, rice, reserved onions, herbs and saffron mixture in a casserole.',
 10
 FROM recipes
 WHERE title = 'Easy lamb biryani';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 8,
 'Cover and bake, then allow the biryani to rest before serving. Garnish with pomegranate if desired.',
 80
@@ -1309,91 +1108,49 @@ WHERE title = 'Easy lamb biryani';
 -- Mushroom Doner
 -- ---------------------------------------------------------
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 1,
 'Preheat the oven.',
 5
 FROM recipes
 WHERE title = 'Mushroom doner';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 2,
 'Heat the chopped tomatoes, harissa, sugar and lemon juice and reduce to form the chilli sauce.',
 10
 FROM recipes
 WHERE title = 'Mushroom doner';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 3,
 'Mix the sliced onion with white wine vinegar and parsley and set aside.',
 3
 FROM recipes
 WHERE title = 'Mushroom doner';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 4,
 'Combine the yoghurt and dried mint and season with salt and pepper.',
 2
 FROM recipes
 WHERE title = 'Mushroom doner';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 5,
 'Warm the pitta breads in the oven.',
 5
 FROM recipes
 WHERE title = 'Mushroom doner';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 6,
 'Dry-fry the mushrooms, add the seasonings and garlic oil, then add a little water and stir-fry briefly.',
 5
 FROM recipes
 WHERE title = 'Mushroom doner';
 
-INSERT INTO recipe_steps (
-    recipe_id,
-    step_number,
-    instruction,
-    duration_minutes
-)
-
+INSERT INTO recipe_steps (recipe_id, step_number, instruction, duration_minutes)
 SELECT recipe_id, 7,
 'Split the pittas and fill with cabbage, tomato, onion and mushrooms. Finish with the chilli and yoghurt sauces.',
 5

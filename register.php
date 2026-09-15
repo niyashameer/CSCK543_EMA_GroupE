@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/db.php';
-require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/includes/db.php';
+require_once __DIR__ . '/includes/auth.php';
 
-requireGuest(); 
+requireGuest();
 
 $errors = [];
 
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $pageTitle = 'Register';
-require __DIR__ . '/header.php';
+require __DIR__ . '/includes/header.php';
 ?>
 
 <h1>Create an account</h1>
@@ -185,4 +185,4 @@ require __DIR__ . '/header.php';
 
 <p>Already have an account? <a href="login.php">Log in</a></p>
 
-<?php require __DIR__ . '/footer.php'; ?>
+<?php require __DIR__ . '/includes/footer.php'; ?>
