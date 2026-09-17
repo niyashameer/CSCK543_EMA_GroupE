@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
 <body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
 <header class="site-header">
     <a href="index.php" class="logo">Recipe App</a>
     <button type="button" id="nav-toggle" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
@@ -14,14 +15,16 @@
         <span aria-hidden="true">&#9776;</span>
     </button>
     <nav id="site-nav">
-        <a href="index.php">Search</a>
+        <?php $currentPage = basename($_SERVER['SCRIPT_NAME']); ?>
+        <a href="index.php" <?= $currentPage === 'index.php' ? 'aria-current="page"' : '' ?>>Search</a>
         <?php if (isLoggedIn()): ?>
-            <a href="account.php">Account</a>
+            <a href="account.php" <?= $currentPage === 'account.php' ? 'aria-current="page"' : '' ?>>Account</a>
             <a href="logout.php">Log out</a>
         <?php else: ?>
-            <a href="login.php">Log in</a>
-            <a href="register.php">Register</a>
+            <a href="login.php" <?= $currentPage === 'login.php' ? 'aria-current="page"' : '' ?>>Log in</a>
+            <a href="register.php" <?= $currentPage === 'register.php' ? 'aria-current="page"' : '' ?>>Register</a>
         <?php endif; ?>
     </nav>
 </header>
-<main class="site-main">
+<main class="site-main" id="main-content">
+

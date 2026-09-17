@@ -1,11 +1,10 @@
 <?php
-require_once __DIR__ . '/includes/db.php';
-require_once __DIR__ . '/includes/auth.php';
+require_once 'includes/db.php';
+require_once 'includes/auth.php';
 
 requireGuest();
 
 $errors = [];
-
 $firstName = '';
 $lastName  = '';
 $email     = '';
@@ -31,7 +30,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $selectedDietary   = array_map('intval', $_POST['dietary'] ?? []);
     $selectedAllergens = array_map('intval', $_POST['allergens'] ?? []);
 
-    // --- Validation ---
     if ($firstName === '' || mb_strlen($firstName) > 50) {
         $errors[] = 'Please enter a first name (up to 50 characters).';
     }
@@ -48,8 +46,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Passwords do not match.';
     }
 
-    // Friendly pre-check. The UNIQUE constraint on users.email is the
-    // real guarantee — this just avoids a generic DB error most of the time.
     if (empty($errors)) {
         $stmt = $pdo->prepare('SELECT user_id FROM users WHERE email = ?');
         $stmt->execute([$email]);
@@ -109,7 +105,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 $pageTitle = 'Register';
-require __DIR__ . '/includes/header.php';
+require_once 'includes/header.php';
 ?>
 
 <h1>Create an account</h1>
@@ -185,4 +181,4 @@ require __DIR__ . '/includes/header.php';
 
 <p>Already have an account? <a href="login.php">Log in</a></p>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require_once 'includes/footer.php'; ?>

@@ -1,23 +1,22 @@
 /* =========================================================
    Recipe App — base styles
    Mobile-first, then scaled up with a min-width media query.
+   Keeps the team's original teal palette from the starter CSS.
    ========================================================= */
 
 :root {
-    --color-primary: #b5451b;
-    --color-primary-dark: #8a3414;
-    --color-text: #26221f;
-    --color-muted: #6b6560;
-    --color-bg: #fdfaf6;
+    --color-primary: #2f4f4f;
+    --color-primary-dark: #223b3b;
+    --color-text: #222;
+    --color-muted: #666;
+    --color-bg: #fafafa;
     --color-surface: #ffffff;
-    --color-border: #e3ddd4;
+    --color-border: #e0e0e0;
     --color-success-bg: #eaf6ec;
     --color-success-text: #276b34;
     --color-error-bg: #fbeaea;
     --color-error-text: #a4282c;
     --radius: 8px;
-    --spacing: 1rem;
-    --max-width: 960px;
 }
 
 * {
@@ -30,7 +29,7 @@ html {
 
 body {
     margin: 0;
-    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
     color: var(--color-text);
     background: var(--color-bg);
     line-height: 1.5;
@@ -50,7 +49,6 @@ a:focus {
     color: var(--color-primary-dark);
 }
 
-/* Keep a visible focus ring for keyboard users on every interactive element. */
 a:focus-visible,
 button:focus-visible,
 input:focus-visible,
@@ -72,6 +70,22 @@ textarea:focus-visible {
     border: 0;
 }
 
+/* Visually hidden until focused — lets keyboard users jump past the nav. */
+.skip-link {
+    position: absolute;
+    left: -999px;
+    top: 0;
+    background: #fff;
+    color: var(--color-primary);
+    padding: 0.75rem 1rem;
+    z-index: 100;
+    border-radius: 0 0 var(--radius) 0;
+}
+
+.skip-link:focus {
+    left: 0;
+}
+
 /* --- Header --- */
 
 .site-header {
@@ -79,9 +93,9 @@ textarea:focus-visible {
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    padding: 0.75rem 1rem;
-    background: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
+    padding: 1rem;
+    background: var(--color-primary);
+    color: #fff;
 }
 
 .site-header .logo {
@@ -96,8 +110,9 @@ textarea:focus-visible {
     align-items: center;
     justify-content: center;
     background: none;
-    border: 1px solid var(--color-border);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     border-radius: var(--radius);
+    color: #fff;
     font-size: 1.25rem;
     padding: 0.35rem 0.6rem;
     cursor: pointer;
@@ -116,16 +131,25 @@ textarea:focus-visible {
 }
 
 #site-nav a {
+    color: #eee;
     text-decoration: none;
-    padding: 0.5rem 0;
+    font-size: 0.95rem;
+    padding: 0.4rem 0;
+}
+
+#site-nav a[aria-current="page"] {
+    color: #fff;
+    font-weight: 700;
+    text-decoration: underline;
 }
 
 /* --- Main content --- */
 
 .site-main {
-    max-width: var(--max-width);
+    padding: 1rem;
+    max-width: 960px;
     margin: 0 auto;
-    padding: 1.5rem 1rem 3rem;
+    padding-bottom: 3rem;
 }
 
 h1 {
@@ -184,16 +208,15 @@ h1 {
 
 .form-row input[type="text"],
 .form-row input[type="email"],
-.form-row input[type="password"] {
+.form-row input[type="password"],
+.form-row input[type="number"],
+.form-row textarea {
     padding: 0.5rem 0.6rem;
     border: 1px solid var(--color-border);
     border-radius: var(--radius);
     font-size: 1rem;
     width: 100%;
-}
-
-.form-row input:invalid:not(:placeholder-shown) {
-    border-color: var(--color-error-text);
+    font-family: inherit;
 }
 
 .form-row small {
@@ -257,6 +280,189 @@ fieldset.form-row {
     text-decoration: underline;
 }
 
+/* --- Search page --- */
+
+.search-form {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.search-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 0.75rem;
+}
+
+.search-row input[type="search"] {
+    flex: 1 1 200px;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+}
+
+.search-row select,
+.search-row input[type="number"],
+.search-row input[type="text"] {
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    font-size: 1rem;
+}
+
+.search-row--categories {
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 0.75rem 1rem;
+    display: block;
+}
+
+.category-group {
+    margin-bottom: 0.5rem;
+}
+
+.category-group-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.85rem;
+    color: var(--color-muted);
+    margin-bottom: 0.25rem;
+}
+
+.legend-hint {
+    font-weight: 400;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+}
+
+#results-count {
+    color: var(--color-muted);
+    margin-bottom: 1rem;
+}
+
+.recipe-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+.recipe-card {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius);
+    padding: 1rem;
+}
+
+.recipe-card-link {
+    text-decoration: none;
+    color: inherit;
+}
+
+.recipe-card h2 {
+    margin: 0 0 0.35rem;
+    font-size: 1.1rem;
+}
+
+.recipe-card-meta {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+    margin: 0 0 0.5rem;
+}
+
+.recipe-card-desc {
+    margin: 0 0 0.5rem;
+}
+
+.tag-list {
+    list-style: none;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    padding: 0;
+    margin: 0.5rem 0 0;
+}
+
+.tag {
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.8rem;
+    color: var(--color-muted);
+}
+
+/* --- Recipe detail page --- */
+
+.recipe-detail-header {
+    margin-bottom: 2rem;
+}
+
+.recipe-source {
+    color: var(--color-muted);
+    font-size: 0.9rem;
+}
+
+.recipe-facts {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem 1.5rem;
+    margin: 1rem 0;
+}
+
+.recipe-facts div {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--color-border);
+    padding-bottom: 0.25rem;
+}
+
+.recipe-facts dt {
+    font-weight: 600;
+}
+
+.recipe-facts dd {
+    margin: 0;
+}
+
+.recipe-section {
+    margin-bottom: 2rem;
+}
+
+.ingredient-list,
+.step-list {
+    padding-left: 1.25rem;
+}
+
+.ingredient-list li,
+.step-list li {
+    margin-bottom: 0.4rem;
+}
+
+.ingredient-qty {
+    font-weight: 600;
+    margin-right: 0.25rem;
+}
+
+.ingredient-notes {
+    color: var(--color-muted);
+}
+
+.step-list {
+    list-style: decimal;
+}
+
+.step-duration {
+    display: inline-block;
+    margin-left: 0.5rem;
+    color: var(--color-muted);
+    font-size: 0.85rem;
+}
+
 /* --- Favourites list --- */
 
 .favourites-list {
@@ -295,16 +501,19 @@ fieldset.form-row {
 
 .site-footer {
     text-align: center;
-    padding: 1.5rem 1rem;
+    padding: 1rem;
+    font-size: 0.85rem;
     color: var(--color-muted);
-    font-size: 0.9rem;
-    border-top: 1px solid var(--color-border);
 }
 
 /* =========================================================
-   Larger screens: show nav inline, drop the toggle button.
+   Desktop: header nav goes inline, recipe grid widens.
    ========================================================= */
 @media (min-width: 700px) {
+    .site-header {
+        flex-wrap: nowrap;
+    }
+
     .nav-toggle {
         display: none;
     }
@@ -317,7 +526,13 @@ fieldset.form-row {
         gap: 1.25rem;
     }
 
-    .site-main {
-        padding-top: 2rem;
+    .recipe-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 900px) {
+    .recipe-grid {
+        grid-template-columns: repeat(3, 1fr);
     }
 }
