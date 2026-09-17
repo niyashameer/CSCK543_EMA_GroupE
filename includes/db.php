@@ -1,10 +1,4 @@
 <?php
-/**
- * Database connection.
- * Every teammate running local XAMPP with default settings (root / no password)
- * can use this as-is. If your local MySQL has a different user/password,
- * change ONLY your local copy — don't commit personal overrides.
- */
 
 $DB_HOST = 'localhost';
 $DB_NAME = 'recipe_app';

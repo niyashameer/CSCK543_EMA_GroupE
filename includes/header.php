@@ -9,7 +9,11 @@
 <body>
 <header class="site-header">
     <a href="index.php" class="logo">Recipe App</a>
-    <nav>
+    <button type="button" id="nav-toggle" class="nav-toggle" aria-expanded="false" aria-controls="site-nav">
+        <span class="sr-only">Menu</span>
+        <span aria-hidden="true">&#9776;</span>
+    </button>
+    <nav id="site-nav">
         <a href="index.php">Search</a>
         <?php if (isLoggedIn()): ?>
             <a href="account.php">Account</a>
