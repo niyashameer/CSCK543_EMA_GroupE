@@ -1,7 +1,6 @@
 /* =========================================================
    Recipe App — base styles
    Mobile-first, then scaled up with a min-width media query.
-   Keeps the team's original teal palette from the starter CSS.
    ========================================================= */
 
 :root {
