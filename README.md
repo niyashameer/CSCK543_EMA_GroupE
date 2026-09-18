@@ -2,6 +2,8 @@
 
 PHP + MySQL + HTML5/CSS3/JS recipe search app, no frontend frameworks, targeting XAMPP + Google Chrome.
 
+### Github Repostory: https://github.com/niyashameer/CSCK543_EMA_GroupE/pull/4
+
 ## Getting set up (every team member does this once)
 
 1. Install [XAMPP](https://www.apachefriends.org/) (PHP 8.x bundle).
