@@ -30,7 +30,7 @@ username/password (default XAMPP is `root` / no password — most people won't n
 - `recipe.php?id=N` — recipe detail: ingredients (grouped by section), method with
   per-step timing, categories, average rating, link back to the original BBC Food page,
   a favourite toggle, and a rating form (overall + taste/difficulty/presentation + review).
-- `register.php` / `login.php` / `logout.php` — account creation and sessions. Registration
+- `register.php` / `login.php` / `logout.php` — account creation and sessions. Re/ingegistration
   also captures optional dietary preferences and allergens.
 - `account.php` — edit profile details and dietary/allergen preferences, change password,
   view and remove saved favourites.
