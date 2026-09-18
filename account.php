@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/includes/db.php';
-require_once __DIR__ . '/includes/auth.php';
+require_once 'includes/db.php';
+require_once 'includes/auth.php';
 
 requireLogin();
 
@@ -132,7 +132,7 @@ $favourites = $stmt->fetchAll();
 
 $flash = flash();
 $pageTitle = 'Account';
-require __DIR__ . '/includes/header.php';
+require_once 'includes/header.php';
 ?>
 
 <h1>Your account</h1>
@@ -273,4 +273,4 @@ require __DIR__ . '/includes/header.php';
     <?php endif; ?>
 </section>
 
-<?php require __DIR__ . '/includes/footer.php'; ?>
+<?php require_once 'includes/footer.php'; ?>
