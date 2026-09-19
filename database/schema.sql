@@ -20,9 +20,15 @@
 
 -- =========================================================
 -- CREATE DATABASE
+--
+-- Drop the existing database first so that running this file
+-- always creates a clean and reproducible database structure.
+-- WARNING: this removes any existing data in recipe_app.
 -- =========================================================
 
-CREATE DATABASE IF NOT EXISTS recipe_app;
+DROP DATABASE IF EXISTS recipe_app;
+
+CREATE DATABASE recipe_app;
 
 USE recipe_app;
 
@@ -456,6 +462,24 @@ CREATE TABLE recipe_steps (
 --
 -- Stores ratings submitted by users for recipes.
 --
+-- Users rate each recipe across three criteria:
+-- - taste
+-- - ease of preparation
+-- - presentation
+--
+-- Each criterion uses a 1-5 scale where a higher score is
+-- more positive. For difficulty_rating specifically:
+-- 1 represents difficult and 5 represents easy.
+--
+-- An overall rating is not stored because it can be derived
+-- from the three component ratings:
+--
+-- (taste + ease + presentation) / 3
+--
+-- Avoiding a stored overall value prevents duplicated data
+-- and ensures that the overall score always remains
+-- consistent with its component ratings.
+--
 -- Relationships:
 --
 -- users -> ratings
@@ -485,13 +509,17 @@ CREATE TABLE ratings (
 
     recipe_id INT NOT NULL,
 
-    overall_rating TINYINT NOT NULL,
+    -- 1 = poor, 5 = excellent.
+    taste_rating TINYINT NOT NULL,
 
-    taste_rating TINYINT,
+    -- Stored as difficulty_rating for consistency with the
+    -- existing schema, but presented to users as "Ease of
+    -- preparation":
+    -- 1 = difficult, 5 = easy.
+    difficulty_rating TINYINT NOT NULL,
 
-    difficulty_rating TINYINT,
-
-    presentation_rating TINYINT,
+    -- 1 = poor, 5 = excellent.
+    presentation_rating TINYINT NOT NULL,
 
     review TEXT,
 
@@ -511,22 +539,15 @@ CREATE TABLE ratings (
     ),
 
     CHECK (
-        overall_rating BETWEEN 1 AND 5
+        taste_rating BETWEEN 1 AND 5
     ),
 
     CHECK (
-        taste_rating IS NULL
-        OR taste_rating BETWEEN 1 AND 5
+        difficulty_rating BETWEEN 1 AND 5
     ),
 
     CHECK (
-        difficulty_rating IS NULL
-        OR difficulty_rating BETWEEN 1 AND 5
-    ),
-
-    CHECK (
-        presentation_rating IS NULL
-        OR presentation_rating BETWEEN 1 AND 5
+        presentation_rating BETWEEN 1 AND 5
     )
 );
 

@@ -115,18 +115,58 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+/*
+ * Load the user's favourite recipes.
+ *
+ * Each user's overall rating is derived from their three required
+ * component scores:
+ *
+ * (taste + ease of preparation + presentation) / 3
+ *
+ * AVG() then calculates the overall average rating for each recipe.
+ */
 $stmt = $pdo->prepare(
-    'SELECT r.recipe_id, r.title, r.difficulty, r.prep_time_minutes, r.cook_time_minutes,
-            ROUND(AVG(rt.overall_rating), 1) AS avg_rating,
-            f.created_at
+    'SELECT
+        r.recipe_id,
+        r.title,
+        r.difficulty,
+        r.prep_time_minutes,
+        r.cook_time_minutes,
+
+        ROUND(
+            AVG(
+                (
+                    rt.taste_rating
+                    + rt.difficulty_rating
+                    + rt.presentation_rating
+                ) / 3.0
+            ),
+            1
+        ) AS avg_rating,
+
+        f.created_at
+
      FROM favourites f
-     JOIN recipes r ON r.recipe_id = f.recipe_id
-     LEFT JOIN ratings rt ON rt.recipe_id = r.recipe_id
+
+     JOIN recipes r
+        ON r.recipe_id = f.recipe_id
+
+     LEFT JOIN ratings rt
+        ON rt.recipe_id = r.recipe_id
+
      WHERE f.user_id = ?
-     GROUP BY r.recipe_id, r.title, r.difficulty, r.prep_time_minutes,
-              r.cook_time_minutes, f.created_at
+
+     GROUP BY
+        r.recipe_id,
+        r.title,
+        r.difficulty,
+        r.prep_time_minutes,
+        r.cook_time_minutes,
+        f.created_at
+
      ORDER BY f.created_at DESC'
 );
+
 $stmt->execute([$userId]);
 $favourites = $stmt->fetchAll();
 

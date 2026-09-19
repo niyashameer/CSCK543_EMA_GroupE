@@ -88,7 +88,7 @@ VALUES
     120,
     8,
     'Medium',
-    NULL,
+    'assets/images/recipes/spaghetti-bolognese.jpg',
     'https://www.bbc.co.uk/food/recipes/spaghettibolognese_67868'
 ),
 
@@ -99,7 +99,7 @@ VALUES
     30,
     2,
     'Easy',
-    NULL,
+    'assets/images/recipes/vegan-pancakes.jpg',
     'https://www.bbc.co.uk/food/recipes/vegan_american_pancakes_76094'
 ),
 
@@ -110,7 +110,7 @@ VALUES
     30,
     2,
     'Easy',
-    NULL,
+    'assets/images/recipes/healthy-pizza.jpg',
     'https://www.bbc.co.uk/food/recipes/healthy_pizza_55143'
 ),
 
@@ -121,7 +121,7 @@ VALUES
     120,
     8,
     'Medium',
-    NULL,
+    'assets/images/recipes/lamb-biryani.jpg',
     'https://www.bbc.co.uk/food/recipes/easy_lamb_biryani_46729'
 ),
 
@@ -132,10 +132,9 @@ VALUES
     30,
     4,
     'Easy',
-    NULL,
+    'assets/images/recipes/mushroom-doner.jpg',
     'https://www.bbc.co.uk/food/recipes/mushroom_doner_22676'
 );
-
 
 -- =========================================================
 -- 4. RECIPE CATEGORIES
