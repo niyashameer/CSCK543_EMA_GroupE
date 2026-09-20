@@ -16,7 +16,8 @@
     </button>
     <nav id="site-nav">
         <?php $currentPage = basename($_SERVER['SCRIPT_NAME']); ?>
-        <a href="index.php" <?= $currentPage === 'index.php' ? 'aria-current="page"' : '' ?>>Search</a>
+        <a href="index.php" <?= $currentPage === 'index.php' ? 'aria-current="page"' : '' ?>>Home</a>
+        <a href="search.php" <?= $currentPage === 'search.php' ? 'aria-current="page"' : '' ?>>Search</a>
         <?php if (isLoggedIn()): ?>
             <a href="account.php" <?= $currentPage === 'account.php' ? 'aria-current="page"' : '' ?>>Account</a>
             <a href="logout.php">Log out</a>
